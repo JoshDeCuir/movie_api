@@ -4,10 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documentstion file: Movie Api</title>
-</head>
-<body>
-  <h1>You see Documentation file
-  </h1>  
-  <div>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Atque assumenda molestiae, eveniet vitae nulla consequatur optio, accusantium sit eius aspernatur amet! Dignissimos expedita laborum assumenda quasi possimus, cupiditate enim ipsum.</div>
-</body>
-</html>
+  </head>
+  <body>
+      <h1>Movie and User API Documentation</h1>
+  
+      <h2>Movies</h2>
+      <table>
+          <tr>
+              <th>Request</th>
+              <th>URL</th>
+              <th>Response</th>
+          </tr>
+          <tr>
+              <td>GET</td>
+              <td>/movies</td>
+              <td>Get a list of all movies</td>
+          </tr>
+          <tr>
+              <td>GET</td>
+              <td>/movies/(specific title you are looking for by movie title)</td>
+              <td>Get details of a specific movie</td>
+          </tr>
+          <tr>
+              <td>GET</td>
+              <td>/movies/genre/(specific genre you are looking for by genre)</td>
+              <td>Get details of a genre</td>
+          </tr>
+          <tr>
+              <td>GET</td>
+              <td>/movies/director/(specific director you are looking for by name)</td>
+              <td>Get details of the director of the movie</td>
+          </tr>
+      </table>
+  
+      <h2>Users</h2>
+  
+      <table>
+          <tr>
+              <th>Request</th>
+              <th>URL</th>
+              <th>Response</th>
+          </tr>
+          <tr>
+              <td>POST</td>
+              <td>/users</td>
+              <td>Create a new user</td>
+          </tr>
+          <tr>
+              <td>PUT</td>
+              <td>/users/(specific id you are looking for in the array)</td>
+              <td>Able to update users name</td>
+          </tr>
+          <tr>
+              <td>POST</td>
+              <td>/users/(specific id you are looking for in the array)/(specific movie you want to add to the users favorite list)</td>
+              <td>Adding a movie to a users favorites list</td>
+          </tr>
+          <tr>
+              <td>DELETE</td>
+              <td>/users/:id/(specific movie you want to delete)</td>
+              <td>Delete a specific movie from the users favorites list</td>
+          </tr>
+          <tr>
+              <td>DELETE</td>
+              <td>/users/:id</td>
+              <td>Delete specific user of the array</td>
+          </tr>
+      </table>
+  </body>
+  </html>
+
+
