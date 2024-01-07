@@ -1,77 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentstion file: Movie Api</title>
-  </head>
-  <body>
-      <h1>Movie and User API Documentation</h1>
-  
-      <h2>Movies</h2>
-      <table>
-          <tr>
-              <th>Request</th>
-              <th>URL</th>
-              <th>Response</th>
-          </tr>
-          <tr>
-              <td>GET</td>
-              <td>/movies</td>
-              <td>Get a list of all movies</td>
-          </tr>
-          <tr>
-              <td>GET</td>
-              <td>/movies/(specific title you are looking for by movie title)</td>
-              <td>Get details of a specific movie</td>
-          </tr>
-          <tr>
-              <td>GET</td>
-              <td>/movies/genre/(specific genre you are looking for by genre)</td>
-              <td>Get details of a genre</td>
-          </tr>
-          <tr>
-              <td>GET</td>
-              <td>/movies/director/(specific director you are looking for by name)</td>
-              <td>Get details of the director of the movie</td>
-          </tr>
-      </table>
-  
-      <h2>Users</h2>
-  
-      <table>
-          <tr>
-              <th>Request</th>
-              <th>URL</th>
-              <th>Response</th>
-          </tr>
-          <tr>
-              <td>POST</td>
-              <td>/users</td>
-              <td>Create a new user</td>
-          </tr>
-          <tr>
-              <td>PUT</td>
-              <td>/users/(specific id you are looking for in the array)</td>
-              <td>Able to update users name</td>
-          </tr>
-          <tr>
-              <td>POST</td>
-              <td>/users/(specific id you are looking for in the array)/(specific movie you want to add to the users favorite list)</td>
-              <td>Adding a movie to a users favorites list</td>
-          </tr>
-          <tr>
-              <td>DELETE</td>
-              <td>/users/:id/(specific movie you want to delete)</td>
-              <td>Delete a specific movie from the users favorites list</td>
-          </tr>
-          <tr>
-              <td>DELETE</td>
-              <td>/users/:id</td>
-              <td>Delete specific user of the array</td>
-          </tr>
-      </table>
-  </body>
-  </html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Documentstion file: Movie Api</title>
+    </head>
+    <body>
+        <h1>Movie and User API Documentation</h1>
+        <h2>Movies</h2>
+        <table>
+            <tr>
+                <th>Description</th>
+                <th>Request</th>
+                <th>URL</th>
+                <th>Body</th>
+                <th>Response</th>
+            </tr>
+            <tr>
+                <td>Get a list of all movies</td>  
+                <td>GET</td>
+                <td>/movies</td>
+                <td></td>
+                <td>[
+                {
+                    "Title": "13 Hours: The Secret Soldiers of Benghazi",
+                    "Description": "The film follows six members of the Annex Security Team who fought to defend the American diplomatic compound in Benghazi, Libya after waves of attacks by militants on September 11, 2012.",
+                    "Genre": {
+                        "Name": "Action",
+                        "Description": "Action film is a film genre in which the protagonist is thrust into a series of events that typically involve violence and physical feats."
+                    },
+                    "Director": {
+                        "Name": "Michael Bay",
+                        "Bio": "Michael Benjamin Bay is an American film director and producer. He is best known for making big-budget, high-concept action films characterized by fast cutting, stylistic cinematography and visuals, and extensive use of special effects, including frequent depictions of explosions.",
+                        "Birth": 1965
+                    },
+                    "ImageURL": "https://deadline.com/2023/05/michael-bay-true-crime-docuseries-investigation-discovery-1235369521/",
+                    "Featured": false
+                },
+            ]</td>
+            </tr>
+            <tr>
+                <td>Get details of a specific movie by title</td>
+                <td>GET</td>
+                <td>/movies/(specific title)</td>
+                <td></td>
+                <td>{
+                    "Title": "The Other Guys",
+                    "Description": "Two mismatched New York City detectives seize an opportunity to step up like the city's top cops, whom they idolize, only things don't quite go as planned.",
+                    "Genre": {
+                        "Name": "Action",
+                        "Description": "Action film is a film genre in which the protagonist is thrust into a series of events that typically involve violence and physical feats."
+                    },
+                    "Director": {
+                        "Name": "Adam McKay",
+                        "Bio": "Adam McKay (born April 17, 1968) is an American screenwriter, director, comedian, and actor. McKay has a comedy partnership with Will Ferrell, with whom he co-wrote the films Anchorman, Talladega Nights, and The Other Guys. Ferrell and McKay also founded their comedy website Funny or Die through their production company Gary Sanchez Productions. He has been married to Shira Piven since 1999. They have two children.",
+                        "Birth": 1968
+                    },
+                    "ImageURL": "https://www.imdb.com/name/nm0570912/?ref_=tt_ov_dr",
+                    "Featured": false
+                }</td>
+            </tr>
+            <tr>
+                <td>Get details of a genre</td>
+                <td>GET</td>
+                <td>/movies/genre/(specific genre)</td>
+                <td></td>
+                <td>{
+                    "Name": "Action",
+                    "Description": "Action film is a film genre in which the protagonist is thrust into a series of events that typically involve violence and physical feats."
+                }</td>
+            </tr>
+            <tr>
+                <td>Get details of the director</td>
+                <td>GET</td>
+                <td>/movies/director/(specific director)</td>
+                <td></td>
+                <td>{
+                    "Name": "Adam McKay",
+                    "Bio": "Adam McKay (born April 17, 1968) is an American screenwriter, director, comedian, and actor. McKay has a comedy partnership with Will Ferrell, with whom he co-wrote the films Anchorman, Talladega Nights, and The Other Guys. Ferrell and McKay also founded their comedy website Funny or Die through their production company Gary Sanchez Productions. He has been married to Shira Piven since 1999. They have two children.",
+                    "Birth": 1968
+                }</td>
+            </tr>
+        </table>
 
+        <h2>Users</h2>
 
+        <table>
+            <tr>
+                <th>Description</th>
+                <th>Request</th>
+                <th>URL</th>
+                <th>Body</th>
+                <th>Response</th>
+            </tr>
+            <tr>
+                <td>Create a new user</td>
+                <td>POST</td>
+                <td>/users</td>
+                <td>{
+                    "name": "(Specific user id)",
+                    "favoriteMovies": []
+                }</td>
+                <td>{
+                    "name": "(Specific user id)",
+                    "favoriteMovies": [],
+                    "id": "aaa8b1b5-748d-4295-8cbc-f84b573ceddc"
+                }</td>
+            </tr>
+            <tr>
+                <td>Able to update users name</td>
+                <td>PUT</td>
+                <td>/users/(specific id)</td>
+                <td>{
+                    "name": "(Specific user id)",
+                    "favoriteMovies": []
+                }</td>
+                <td>{
+                    "id": 1,
+                    "name": "(Specific user id)",
+                    "favoriteMovies": []
+                }</td>
+            </tr>
+            <tr>
+                <td>Adding a movie to a users favorites list</td>
+                <td>POST</td>
+                <td>/users/(specific id)/(specific favorite movie)</td>
+                <td></td>
+                <td>The Other Guys has been added to user 1's array</td>
+            </tr>
+            <tr>
+                <td>Delete a specific movie from the users favorites list</td>
+                <td>DELETE</td>
+                <td>/users/(specific user id)/(specific movie you want to delete)</td>
+                <td></td>
+                <td>"User (specific movie id) has been deleted"</td>
+            </tr>
+            <tr>
+                <td>Delete specific user of the array</td>
+                <td>DELETE</td>
+                <td>/users/(specific user id)</td>
+                <td></td>
+                <td>"User (specific user id) has been deleted"</td>
+            </tr>
+        </table>
+    </body>
+</html>
