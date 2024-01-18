@@ -7,6 +7,11 @@ const mongoose = require('mongoose');
 const { movies, users } = require('./models');
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+
+var auth = require('./auth')(app);
+const passport = require('passport');
+require('./passport');
 
 // Connect to MongoDB
 mongoose.connect('mongodb://localhost/movie_db', {
@@ -20,52 +25,7 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.once('open', () => {
   console.log('Connected to MongoDB');
 });
-/*
-var users = [
-  {
-    id: 1,
-    name: "Sarah",
-    favoriteMovies: []
-  },
-  {
-    id: 2,
-    name: "Josh",
-    favoriteMovies: ["13 Hours: The Secret Soldiers of Benghazi"]
-  },
-]
-var movies =[
-  {
-    "Title":"13 Hours: The Secret Soldiers of Benghazi",
-    "Description": "The film follows six members of the Annex Security Team who fought to defend the American diplomatic compound in Benghazi, Libya after waves of attacks by militants on September 11, 2012.",
-    "Genre":{
-      "Name":"Action",
-      "Description":"Action film is a film genre in which the protagonist is thrust into a series of events that typically involve violence and physical feats."
-    },
-    "Director":{
-      "Name": "Michael Bay",
-      "Bio": "Michael Benjamin Bay is an American film director and producer. He is best known for making big-budget, high-concept action films characterized by fast cutting, stylistic cinematography and visuals, and extensive use of special effects, including frequent depictions of explosions.",
-      "Birth": 1965
-    },
-    "ImageURL":"https://deadline.com/2023/05/michael-bay-true-crime-docuseries-investigation-discovery-1235369521/",
-    "Featured": false
-  },
-  {
-    "Title":"The Other Guys",
-    "Description": "Two mismatched New York City detectives seize an opportunity to step up like the city's top cops, whom they idolize, only things don't quite go as planned.",
-    "Genre":{
-      "Name":"Action",
-      "Description":"Action film is a film genre in which the protagonist is thrust into a series of events that typically involve violence and physical feats."
-    },
-    "Director":{
-      "Name": "Adam McKay",
-      "Bio": "Adam McKay (born April 17, 1968) is an American screenwriter, director, comedian, and actor. McKay has a comedy partnership with Will Ferrell, with whom he co-wrote the films Anchorman, Talladega Nights, and The Other Guys. Ferrell and McKay also founded their comedy website Funny or Die through their production company Gary Sanchez Productions. He has been married to Shira Piven since 1999. They have two children.",
-      "Birth": 1968
-    },
-    "ImageURL":"https://www.imdb.com/name/nm0570912/?ref_=tt_ov_dr",
-    "Featured": false
-  }
-]
-*/
+
 //Create - post new user
 app.post('/users', async (req, res) =>{
   // Validate input
@@ -81,97 +41,123 @@ app.post('/users', async (req, res) =>{
   newUser.username = input.username;
   newUser.password = input.password;
   newUser.email = input.email;
+  newUser.birthday = input.birthday;
+  newUser.favoriteMovies = input.favoriteMovies;
 
   // Write to the database
   await newUser.save();
   res.status(201).json(newUser);
 })
 
-//Update
-app.put('/users/:id', async (req, res) =>{
-  // Input validation
-  const updatedUserInfo = req.body;
-  if(!validateUserInfo(updatedUserInfo, res))
-  {
-    return;
+app.put('/users/:username', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  if(req.user.username !== req.params.username){
+      return res.status(400).send('Permission denied');
   }
 
-  // Update information of user
-  const { id } = req.params;
-  await users.updateOne({'_id': id},
-    {
-      $set:{
-        username: updatedUserInfo.username,
-        password: updatedUserInfo.password,
-        email: updatedUserInfo.email
+  await users.findOneAndUpdate({ username: req.params.username }, {
+      $set:
+      {
+          username: req.body.username,
+          password: req.body.password,
+          birthday: req.body.birthday
       }
-    }
-  );
-
-  // Return updated user data
-  var user = (await users.find({'_id': id}))[0];
-  res.status(200).json(user);
-})
+  }, { new: true }) // This line makes sure that the updated document is returned
+    .then((updatedUser) => {
+        res.json(updatedUser);
+    })
+    .catch((err) => {
+        console.log(err);
+        res.status(500).send('Error: ' + err);
+    })
+});
 
 //Update - Add a new movie to a selected user's favorite's list
-app.post('/users/:userId/addFavoriteMovie/:movieId', async (req, res) =>{
+app.post('/users/:userId/addFavoriteMovie/:movieId', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const { userId, movieId } = req.params;
 
-  try{
-    const user = (await users.find({'_id': userId}))[0];
-    if (user){
-      const favoriteMovies = user.favoriteMovies;
-      favoriteMovies.push(movieId);
-      
-      await users.updateOne({'_id': userId}, {
-        $set:{
-          favoriteMovies: favoriteMovies
+  await users.findOne({'_id': userId})
+    .then(async (user) => {
+      if (user){
+        if (req.user.username != user.username){
+          return res.status(400).send('Permission denied');
         }
-      });
-      res.status(200).send(`${movieId} has been added to user ${userId}'s array`);
-    } else {
-      res.status(400).send('No such user');
-    }
-  } catch (err){
-    console.error(err);
-    res.status(500).send('Error:' + err);
-  }
+  
+        const favoriteMovies = user.favoriteMovies;
+        favoriteMovies.push(movieId);
+        
+        await users.updateOne({'_id': userId}, {
+          $set:{
+            favoriteMovies: favoriteMovies
+          }
+        });
+        res.status(200).send(`${movieId} has been added to user ${userId}'s array`);
+      } else {
+        res.status(400).send('No such user');
+      }
+    })
+    .catch ((err) => {
+      console.error(err);
+      res.status(500).send('Error:' + err);
+    });
 });
 
 //Update - remove movieId from selected user's favorites list
-app.post('/users/:userId/removeFavoriteMovie/:movieId', async (req, res) => {
+app.post('/users/:userId/removeFavoriteMovie/:movieId', passport.authenticate('jwt', { session: false }), async (req, res) => {
   const { userId, movieId } = req.params;
-  
-  try {
-    const user = (await users.find({'_id': userId}))[0];
-    if (user) {
-      const favoriteMovies = user.favoriteMovies.filter(function (id) {
-        return id != movieId;
-      });
-      await users.updateOne({'_id': userId}, {
-        $set:{
-          favoriteMovies: favoriteMovies
-        }
-      });
 
-      res.status(200).send(`${movieId} has been removed from user ${userId}'s array`);
-    }
-    else {
-      res.status(400).send('No such user');
-    }
-  }
-  catch(err) {
-    res.status(500).send('Error:' + err);
-  }
+  await users.findOne({'_id': userId})
+    .then(async (user) => {
+      if (user){
+        if (req.user.username != user.username){
+          return res.status(400).send('Permission denied');
+        }
+  
+        const favoriteMovies = user.favoriteMovies.filter(function (id) {
+          return id != movieId;
+        });
+        
+        await users.updateOne({'_id': userId}, {
+          $set:{
+            favoriteMovies: favoriteMovies
+          }
+        });
+        res.status(200).send(`${movieId} has been removed from user ${userId}'s array`);
+      } else {
+        res.status(400).send('No such user');
+      }
+    })
+    .catch ((err) => {
+      console.error(err);
+      res.status(500).send('Error:' + err);
+    });
+});
+
+//Get - get user from database
+app.get("/users/:id", passport.authenticate('jwt', { session: false }), async (req, res) => {
+  const id = req.params.id;
+
+  await users.findOne({ '_id': id })
+    .then(async(user) => {
+      if (!user) {
+        res.status(400).send("Permission denied");
+      } else {
+        res.status(200).send(user);
+      }  
+
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error: " + err);
+    });
 });
 
 //Delete - remove user from database
-app.delete("/users/:id", async (req, res) => {
+app.delete("/users/:id", passport.authenticate('jwt', { session: false }), async (req, res) => {
   const id = req.params.id;
   try{
     const deletedUser = await users.findOneAndDelete({ '_id': id });
       if (!deletedUser) {
-        res.status(400).send(id + " was not found");
+        res.status(400).send("Permission denied");
       } else {
         res.status(200).send(id + " was deleted.");
       }  
@@ -183,9 +169,15 @@ app.delete("/users/:id", async (req, res) => {
 
 
 //Read - get all movies
-app.get('/movies', async (req, res) =>{
-  const result = await movies.find();
-  res.status(200).json(result);
+app.get('/movies', passport.authenticate('jwt',{session: false}), async (req, res) =>{
+  await movies.find()
+    .then((result) => {
+      res.status(200).json(result);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send('Error: ' + error);
+    });
 })
 
 //Read - get by movie title
