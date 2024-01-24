@@ -5,9 +5,13 @@ const express = require('express'),
 
 const mongoose = require('mongoose');
 const { movies, users } = require('./models');
+const {check, validateResult} = require('express-validator');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
+
+const cors = require('cors');
+app.use(cors());
 
 var auth = require('./auth')(app);
 const passport = require('passport');
@@ -27,26 +31,45 @@ db.once('open', () => {
 });
 
 //Create - post new user
-app.post('/users', async (req, res) =>{
+app.post('/users',
+[
+check('Username', 'Username is required').isLength({min: 5}),
+check('Username', 'Username contains non alphanumeric characters - not allowed').isAlphanumeric(), 
+check('Password', 'Password is required').not().isEmpty(),
+check('Email', 'Email does not appear to be valid').isEmail()
+],async (req, res) =>{
   // Validate input
   const input = req.body;
+  var errors = validateResult(req);
+  if(!errors.isEmpty()){
+    return res.status(422).json({errors: errors.array() });
+  }
   if(!validateUserInfo(input, res))
   {
     return;
   }
+  var hashPassword = users.hashPassword(req.body.password);
+    await users.findOne({username: req.body.username})
+      .then(async (user) => {
+        if(user) {
+          return res.status(400).send(req.body.username + ' already exists');
+        } else {
+          
+            // Create new users object
+            var newUser = new users();
+            newUser.id = uuid.v4();
+            newUser.username = input.username;
+            newUser.password = hashPassword;
+            newUser.email = input.email;
+            newUser.birthday = input.birthday;
+            newUser.favoriteMovies = input.favoriteMovies;
+          
+            // Write to the database
+            await newUser.save();
+            res.status(201).json(newUser);
 
-  // Create new users object
-  var newUser = new users();
-  newUser.id = uuid.v4();
-  newUser.username = input.username;
-  newUser.password = input.password;
-  newUser.email = input.email;
-  newUser.birthday = input.birthday;
-  newUser.favoriteMovies = input.favoriteMovies;
-
-  // Write to the database
-  await newUser.save();
-  res.status(201).json(newUser);
+        }
+      })
 })
 
 app.put('/users/:username', passport.authenticate('jwt', { session: false }), async (req, res) => {
@@ -217,7 +240,10 @@ app.get('/movies/director/:directorName', async (req, res) =>{
 })
 
 // Start the server
-app.listen(8080, () => console.log("Listening on 8080"));
+const port = process.env.PORT || 8080;
+app.listen(port, '0.0.0.0' ,() => {
+  console.log('Listening on Port' + port)
+}); 
 
 
 function validateUserInfo(userInfo, res){
