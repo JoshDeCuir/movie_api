@@ -58,7 +58,7 @@ check('email', 'Email does not appear to be valid').isEmail()
           newUser.username = input.username;
           newUser.password = hashPassword;
           newUser.email = input.email;
-          newUser.birthday = input.birthday;
+          newUser.birthday = new Date(input.birthday);
           newUser.favoriteMovies = input.favoriteMovies;
         
           // Write to the database
