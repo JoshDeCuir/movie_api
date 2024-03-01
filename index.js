@@ -78,6 +78,7 @@ app.put('/users/:username', passport.authenticate('jwt', { session: false }), as
       {
           username: req.body.username,
           password: req.body.password,
+          email: req.body.email,
           birthday: req.body.birthday
       }
   }, { new: true }) // This line makes sure that the updated document is returned
