@@ -52,18 +52,18 @@ check('email', 'Email does not appear to be valid').isEmail()
         return res.status(400).send(req.body.username + ' already exists');
       }
       else {
-          // Create new users object
-          var newUser = new users();
-          newUser.id = uuid.v4();
-          newUser.username = input.username;
-          newUser.password = hashPassword;
-          newUser.email = input.email;
-          newUser.birthday = new Date(input.birthday);
-          newUser.favoriteMovies = input.favoriteMovies;
-        
-          // Write to the database
-          await newUser.save();
-          res.status(201).json(newUser);
+        // Create new users object
+        var newUser = new users();
+        newUser.id = uuid.v4();
+        newUser.username = input.username;
+        newUser.password = hashPassword;
+        newUser.email = input.email;
+        newUser.birthday = new Date(input.birthday);
+        newUser.favoriteMovies = input.favoriteMovies;
+      
+        // Write to the database
+        await newUser.save();
+        res.status(201).json(newUser);
       }
     });
 })
