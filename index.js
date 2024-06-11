@@ -111,7 +111,7 @@ app.post('/users/:userId/addFavoriteMovie/:movieId', passport.authenticate('jwt'
             favoriteMovies: favoriteMovies
           }
         });
-        res.status(200).send(`${movieId} has been added to user ${userId}'s array`);
+        res.status(200).send(`"${movieId} has been added to user ${userId}'s array"`);
       } else {
         res.status(400).send('No such user');
       }
@@ -142,7 +142,7 @@ app.post('/users/:userId/removeFavoriteMovie/:movieId', passport.authenticate('j
             favoriteMovies: favoriteMovies
           }
         });
-        res.status(200).send(`${movieId} has been removed from user ${userId}'s array`);
+        res.status(200).send(`"${movieId} has been removed from user ${userId}'s array"`);
       } else {
         res.status(400).send('No such user');
       }
