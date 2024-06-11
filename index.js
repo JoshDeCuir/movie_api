@@ -180,7 +180,7 @@ app.delete("/users/:id", passport.authenticate('jwt', { session: false }), async
       if (!deletedUser) {
         res.status(400).send("Permission denied");
       } else {
-        res.status(200).send(id + " was deleted.");
+        res.status(200).send(`"${id} was deleted."`);
       }  
     }catch(err) {
       console.error(err);
